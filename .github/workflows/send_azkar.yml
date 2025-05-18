@@ -1,10 +1,10 @@
 name: Send Azkar
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:     # لتشغيله يدويًا
   schedule:
-    - cron: '0 4 * * *'   # 6 صباحًا ليبيا (UTC+2)
-    - cron: '0 16 * * *'  # 6 مساءً ليبيا (UTC+2)
+    - cron: '0 4 * * *'   # 6 صباحًا بتوقيت ليبيا (UTC+2)
+    - cron: '0 16 * * *'  # 6 مساءً بتوقيت ليبيا
 
 jobs:
   send_azkar:

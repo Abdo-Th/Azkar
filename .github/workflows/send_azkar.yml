@@ -1,29 +1,31 @@
-name: Send Azkar
+name: Send Telegram Images Libya Time
 
 on:
-  workflow_dispatch:     # لتشغيله يدويًا
   schedule:
-    - cron: '0 4 * * *'   # 6 صباحًا بتوقيت ليبيا (UTC+2)
-    - cron: '0 16 * * *'  # 6 مساءً بتوقيت ليبيا
+    # 6 AM Libya (UTC+2) -> 4 AM UTC
+    - cron: '0 4 * * *'
+    # 6 PM Libya (UTC+2) -> 4 PM UTC
+    - cron: '0 16 * * *'
 
 jobs:
-  send_azkar:
+  send-image:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.x
+      - name: Determine image
+        id: set-image
+        run: |
+          if [ $(date -u +%H) -eq 4 ]; then
+            echo "IMAGE_PATH=morning.jpg" >> $GITHUB_ENV
+          elif [ $(date -u +%H) -eq 16 ]; then
+            echo "IMAGE_PATH=evening.jpg" >> $GITHUB_ENV
+          fi
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run bot
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python main.py
+      - name: Send to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          photo: ${{ env.IMAGE_PATH }}

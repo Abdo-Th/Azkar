@@ -1,0 +1,29 @@
+name: Send Azkar
+
+on:
+  schedule:
+    - cron: '0 4 * * *'   # 6 صباحًا ليبيا
+    - cron: '0 16 * * *'  # 6 مساءً ليبيا
+  workflow_dispatch:
+
+jobs:
+  send_azkar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Send Azkar to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py

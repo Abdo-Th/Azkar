@@ -1,7 +1,7 @@
 name: Send Azkar
 
 on:
-  workflow_dispatch:     # لتشغيله يدويًا
+  workflow_dispatch:
   schedule:
     - cron: '0 4 * * *'   # 6 صباحًا بتوقيت ليبيا (UTC+2)
     - cron: '0 16 * * *'  # 6 مساءً بتوقيت ليبيا
@@ -24,21 +24,3 @@ jobs:
 
     - name: Run script
       run: python main.py
-
-    - name: Send Morning Azkar (6 AM)
-      if: github.event.schedule == '0 4 * * *'
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        message: "أذكار الصباح"
-        photo: images/morning.jpg
-
-    - name: Send Evening Azkar (6 PM)
-      if: github.event.schedule == '0 16 * * *'
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        message: "أذكار المساء"
-        photo: images/evening.jpg

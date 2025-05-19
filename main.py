@@ -1,29 +1,24 @@
+import datetime
 import requests
 import os
-from datetime import datetime
 
-BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+def send_photo(photo_path, caption):
+    token = os.environ['TELEGRAM_BOT_TOKEN']
+    chat_id = os.environ['TELEGRAM_CHAT_ID']
+    url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    with open(photo_path, 'rb') as photo:
+        files = {'photo': photo}
+        data = {'chat_id': chat_id, 'caption': caption}
+        response = requests.post(url, files=files, data=data)
+    return response
 
-now = datetime.now()
-hour = now.hour
-
-# نحدد الصباح أو المساء حسب الوقت
-if 3 <= hour < 15:
-    IMAGE_PATH = 'images/morning.jpg'
-    MESSAGE = "أذكار الصباح | صباح الخير"
-else:
-    IMAGE_PATH = 'images/evening.jpg'
-    MESSAGE = "أذكار المساء | مساء الخير"
-
-def send_photo():
-    url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto'
-    with open(IMAGE_PATH, 'rb') as photo:
-        response = requests.post(url, data={
-            'chat_id': CHAT_ID,
-            'caption': MESSAGE
-        }, files={'photo': photo})
-    print(response.text)
+def main():
+    now = datetime.datetime.now()
+    hour = now.hour
+    if hour == 6:
+        send_photo('images/morning.jpg', 'أذكار الصباح')
+    elif hour == 18:
+        send_photo('images/evening.jpg', 'أذكار المساء')
 
 if __name__ == "__main__":
-    send_photo()
+    main()

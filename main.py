@@ -1,36 +1,35 @@
 import os
-import datetime
 import requests
+import random
+from datetime import datetime
 
-def send_photo(photo_path, caption):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
-
-    if not token or not chat_id:
-        print("Missing Telegram credentials.")
+def send_telegram_photo(folder):
+    token = os.environ['TELEGRAM_TOKEN']
+    chat_id = os.environ['CHAT_ID']
+    image_dir = f"images/{folder}"
+    
+    # اختيار صورة عشوائية من المجلد
+    images = [f for f in os.listdir(image_dir) if f.endswith(('.jpg', '.png'))]
+    if not images:
+        print("No images found!")
         return
-
+    
+    selected_image = random.choice(images)
+    image_path = os.path.join(image_dir, selected_image)
+    
+    # إرسال الصورة
     url = f"https://api.telegram.org/bot{token}/sendPhoto"
-    with open(photo_path, "rb") as photo:
-        files = {"photo": photo}
-        data = {"chat_id": chat_id, "caption": caption}
+    with open(image_path, 'rb') as photo:
+        files = {'photo': photo}
+        data = {'chat_id': chat_id}
         response = requests.post(url, files=files, data=data)
-        print(response.json())
+    
+    print(f"Sent {folder} image: {selected_image}")
 
-def main():
-    now = datetime.datetime.now()
-    hour = now.hour
+# تحديد الوقت الحالي (UTC)
+current_hour = datetime.utcnow().hour
 
-    print(f"Running at hour: {hour}")
-
-    if hour == 6:
-        send_photo("images/morning.jpg", "أذكار الصباح")
-    elif hour == 18:
-        send_photo("images/evening.jpg", "أذكار المساء")
-    else:
-        # تشغيل يدوي أو وقت غير معروف -> نبعت الزوز
-        send_photo("images/morning.jpg", "أذكار الصباح")
-        send_photo("images/evening.jpg", "أذكار المساء")
-
-if __name__ == "__main__":
-    main()
+if 3 <= current_hour < 15:  # 6 صباحًا بتوقيت السعودية (UTC+3)
+    send_telegram_photo("morning")
+else:  # 6 مساءً بتوقيت السعودية
+    send_telegram_photo("evening")

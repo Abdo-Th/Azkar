@@ -1,29 +1,44 @@
 name: Send Azkar
 
 on:
+  workflow_dispatch:     # لتشغيله يدويًا
   schedule:
-    - cron: '0 4 * * *'   # 6 صباحًا ليبيا
-    - cron: '0 16 * * *'  # 6 مساءً ليبيا
-  workflow_dispatch:
+    - cron: '0 4 * * *'   # 6 صباحًا بتوقيت ليبيا (UTC+2)
+    - cron: '0 16 * * *'  # 6 مساءً بتوقيت ليبيا
 
 jobs:
   send_azkar:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Install dependencies
-        run: pip install requests
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-      - name: Send Azkar to Telegram
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python main.py
+    - name: Run script
+      run: python main.py
+
+    - name: Send Morning Azkar (6 AM)
+      if: github.event.schedule == '0 4 * * *'
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: "أذكار الصباح"
+        photo: images/morning.jpg
+
+    - name: Send Evening Azkar (6 PM)
+      if: github.event.schedule == '0 16 * * *'
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: "أذكار المساء"
+        photo: images/evening.jpg
